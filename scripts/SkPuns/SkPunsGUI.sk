@@ -1,0 +1,249 @@
+# # #  OPTIONS  # # #
+
+options:
+	noperm: &4You do not have access to this command.
+	p: &8 »
+	pl: &c&lSkPuns&8 »
+	ps: &7&o[Silent] &c&lSkPuns&8 »
+	logo: &8» &c&lSkPuns «
+
+
+
+# # #  GUI  # # #
+
+command /punish <offline player>:
+	permission: skpuns.punish
+	permission message: {@noperm}
+	usage: Usage: /punish <player>
+	aliases: pun
+	trigger:
+		punishGUI(player, arg-1, 0)
+
+function punishGUI(s: player, p: offline player, i: integer):
+	set {_u} to uuid of {_p}
+	set {_us} to uuid of {_s}
+	if {_i} == 0:
+		open chest with 6 rows named "Punish %{_p}%" to {_s}
+		formatPanes({_s}, "line", 6, red glass pane, gray glass pane)
+		format gui slot 0 of {_s} with barrier named "&cClose" to close
+		formatSilentMode({_s}, 8)
+		if {punish::%{_u}%::mute} is set:
+			set {_muted} to "&aTrue"
+		else:
+			set {_muted} to "&cFalse"
+		if {punish::%{_u}%::ban} is set:
+			set {_banned} to "&aTrue"
+		else:
+			set {_banned} to "&cFalse"
+		if {punish::%{punishmentsystem::ip::%{_u}%}%::ipban} is set:
+			set {_ipbanned} to "&aTrue"
+		else:
+			set {_ipbanned} to "&cFalse"
+		format gui slot 13 of {_s} with skull of {_p} named "&c%{_p}%" with lore "" and "" and "{@p} &7Muted&8: %{_muted}%" and "{@p} &7Banned&8: %{_banned}%" and "{@p} &7IP-Banned&8: %{_ipbanned}%" and "" and "&7&o%now% &7&oGMT" and "" to do nothing
+		format gui slot 21 of {_s} with book named "&6History" with lore "" and "&7Click to view history" and "" to run:
+			close {_s}'s inventory
+			make {_s} execute command "/history %{_p}%"
+		format gui slot 23 of {_s} with paper named "&cAlts" with lore "" and "&7Click to view alts" and "" to run:
+			close {_s}'s inventory
+			make {_s} execute command "/alts %{_p}%"
+		format gui slot 29 of {_s} with gray dye named "&cKick" with lore "" and "&7Click to view reasons" and "" to run:
+			punishGUI({_s}, {_p}, 1)
+		format gui slot 30 of {_s} with gray dye named "&cWarn" with lore "" and "&7Click to view reasons" and "" to run:
+			punishGUI({_s}, {_p}, 2)
+		format gui slot 31 of {_s} with gray dye named "&cMute" with lore "" and "&7Click to view reasons" and "" to run:
+			punishGUI({_s}, {_p}, 3)
+		format gui slot 39 of {_s} with lime dye named "&6Unmute" with lore "" and "&7Click to unmute" and "" to run:
+			close {_s}'s inventory
+			if {silentmode::%{_us}%} is true:
+				make {_s} execute command "/unmute %{_p}% -s"
+			else:
+				make {_s} execute command "/unmute %{_p}%"
+		format gui slot 32 of {_s} with gray dye named "&cBan" with lore "" and "&7Click to view reasons" and "" to run:
+			punishGUI({_s}, {_p}, 4)
+		format gui slot 33 of {_s} with gray dye named "&cIP-Ban" with lore "" and "&7Click to view reasons" and "" to run:
+			punishGUI({_s}, {_p}, 5)
+		format gui slot 40 of {_s} with lime dye named "&6Unban" with lore "" and "&7Click to unban" and "" to run:
+			close {_s}'s inventory
+			if {silentmode::%{_us}%} is true:
+				make {_s} execute command "/unban %{_p}% -s"
+			else:
+				make {_s} execute command "/unban %{_p}%"
+		format gui slot 41 of {_s} with lime dye named "&6Undo IP-ban" with lore "" and "&7Click to undo IP-ban" and "" to run:
+			close {_s}'s inventory
+			if {silentmode::%{_us}%} is true:
+				make {_s} execute command "/unbanip %{_p}% -s"
+			else:
+				make {_s} execute command "/unbanip %{_p}%"
+	if {_i} == 1:
+		open chest with 5 rows named "Kick %{_p}%" to {_s}
+		formatPanes({_s}, "line", 5, red glass pane, gray glass pane)
+		format gui slot 0 of {_s} with barrier named "&cClose" to close
+		formatSilentMode({_s}, 8)
+		format gui slot 40 of {_s} with arrow named "&cBack" to run:
+			punishGUI({_s}, {_p}, 0)
+		set {_slot} to 8
+		loop {punpresets::kick::*}:
+			add 1 to {_slot}
+			formatKickReason({_s}, {_p}, {_slot}, {punpreset::kick::%loop-value%::reason})
+		add 1 to {_slot}
+		format gui slot {_slot} of {_s} with shiny lime dye named "&6Custom Reason" with lore "" and "&7Click to kick" and "" to run:
+			close {_s}'s inventory
+			json("%{_s}%", "{@pl} &7Click here to kick &c%{_p}% &7for a custom reason||ttp:&6Click to suggest command||sgt:/kick %{_p}% ")
+	if {_i} == 2:
+		open chest with 5 rows named "Warn %{_p}%" to {_s}
+		formatPanes({_s}, "line", 5, red glass pane, gray glass pane)
+		format gui slot 0 of {_s} with barrier named "&cClose" to close
+		formatSilentMode({_s}, 8)
+		format gui slot 40 of {_s} with arrow named "&cBack" to run:
+			punishGUI({_s}, {_p}, 0)
+		set {_slot} to 8
+		loop {punpresets::warn::*}:
+			add 1 to {_slot}
+			formatWarnReason({_s}, {_p}, {_slot}, {punpreset::warn::%loop-value%::reason})
+		add 1 to {_slot}
+		format gui slot {_slot} of {_s} with shiny lime dye named "&6Custom Reason" with lore "" and "&7Click to warn" and "" to run:
+			close {_s}'s inventory
+			json("%{_s}%", "{@pl} &7Click here to warn &c%{_p}% &7for a custom reason||ttp:&6Click to suggest command||sgt:/warn %{_p}% ")
+	if {_i} == 3:
+		open chest with 5 rows named "Mute %{_p}%" to {_s}
+		formatPanes({_s}, "line", 5, red glass pane, gray glass pane)
+		format gui slot 0 of {_s} with barrier named "&cClose" to close
+		formatSilentMode({_s}, 8)
+		format gui slot 40 of {_s} with arrow named "&cBack" to run:
+			punishGUI({_s}, {_p}, 0)
+		set {_slot} to 8
+		loop {punpresets::mute::*}:
+			add 1 to {_slot}
+			formatMuteReason({_s}, {_p}, {_slot}, {punpreset::mute::%loop-value%::reason}, {punpreset::mute::%loop-value%::timenum}, {punpreset::mute::%loop-value%::timetext})
+		add 1 to {_slot}
+		format gui slot {_slot} of {_s} with shiny lime dye named "&6Custom Reason" with lore "" and "&7Click to mute" and "" to run:
+			close {_s}'s inventory
+			json("%{_s}%", "{@pl} &7Click here to mute &c%{_p}% &7for a custom time and reason||ttp:&6Click to suggest command||sgt:/mute %{_p}% ")
+	if {_i} == 4:
+		open chest with 5 rows named "Ban %{_p}%" to {_s}
+		formatPanes({_s}, "line", 5, red glass pane, gray glass pane)
+		format gui slot 0 of {_s} with barrier named "&cClose" to close
+		formatSilentMode({_s}, 8)
+		format gui slot 40 of {_s} with arrow named "&cBack" to run:
+			punishGUI({_s}, {_p}, 0)
+		set {_slot} to 8
+		loop {punpresets::ban::*}:
+			add 1 to {_slot}
+			formatBanReason({_s}, {_p}, {_slot}, {punpreset::ban::%loop-value%::reason}, {punpreset::ban::%loop-value%::timenum}, {punpreset::ban::%loop-value%::timetext})
+		add 1 to {_slot}
+		format gui slot {_slot} of {_s} with shiny lime dye named "&6Custom Reason" with lore "" and "&7Click to ban" and "" to run:
+			close {_s}'s inventory
+			json("%{_s}%", "{@pl} &7Click here to ban &c%{_p}% &7for a custom time and reason||ttp:&6Click to suggest command||sgt:/ban %{_p}% ")
+	if {_i} == 5:
+		open chest with 5 rows named "IP-Ban %{_p}%" to {_s}
+		formatPanes({_s}, "line", 5, red glass pane, gray glass pane)
+		format gui slot 0 of {_s} with barrier named "&cClose" to close
+		formatSilentMode({_s}, 8)
+		format gui slot 40 of {_s} with arrow named "&cBack" to run:
+			punishGUI({_s}, {_p}, 0)
+		set {_slot} to 8
+		loop {punpresets::ipban::*}:
+			add 1 to {_slot}
+			formatIPbanReason({_s}, {_p}, {_slot}, {punpreset::ipban::%loop-value%::reason})
+		add 1 to {_slot}
+		format gui slot {_slot} of {_s} with shiny lime dye named "&6Custom Reason" with lore "" and "&7Click to IP-ban" and "" to run:
+			close {_s}'s inventory
+			json("%{_s}%", "{@pl} &7Click here to IP-ban &c%{_p}% &7for a custom time and reason||ttp:&6Click to suggest command||sgt:/ipban %{_p}% ")
+
+function formatSilentMode(s: player, i: integer):
+	set {_u} to uuid of {_s}
+	if {silentmode::%{_u}%} is true:
+		format gui slot {_i} of {_s} with shiny bell named "&dSilent Mode" with lore "" and "&aON" and "&8OFF" and "" to run:
+			delete {silentmode::%{_u}%}
+			formatSilentMode({_s}, {_i})
+	else:
+		format gui slot {_i} of {_s} with bell named "&dSilent Mode" with lore "" and "&8ON" and "&aOFF" and "" to run:
+			set {silentmode::%{_u}%} to true
+			formatSilentMode({_s}, {_i})
+
+function formatKickReason(s: player, p: offline player, i: integer, r: text):
+	set {_u} to uuid of {_s}
+	format gui slot {_i} of {_s} with lime dye named "&6%{_r}%" with lore "" and "&7Click to kick" and "" to run:
+		close {_s}'s inventory
+		if {silentmode::%{_u}%} is true:
+			make {_s} execute command "kick %{_p}% %{_r}% -s"
+		else:
+			make {_s} execute command "kick %{_p}% %{_r}%"
+
+function formatWarnReason(s: player, p: offline player, i: integer, r: text):
+	set {_u} to uuid of {_s}
+	format gui slot {_i} of {_s} with lime dye named "&6%{_r}%" with lore "" and "&7Click to warn" and "" to run:
+		close {_s}'s inventory
+		if {silentmode::%{_u}%} is true:
+			make {_s} execute command "warn %{_p}% %{_r}% -s"
+		else:
+			make {_s} execute command "warn %{_p}% %{_r}%"
+
+function formatMuteReason(s: player, p: offline player, i: integer, r: text, tsn: integer, tst: text):
+	set {_u} to uuid of {_s}
+	set {_up} to uuid of {_p}
+	set {_amt} to 1
+	loop {punishments::%{_up}%::received::*}:
+		set {_c} to loop-value
+		if {punishment::%{_c}%::type} is "Mute":
+			if {punishment::%{_c}%::reason} contains {_r}:
+				add 1 to {_amt}
+		if {punishment::%{_c}%::type} is "Unmute":
+			if {punishment::%{_c}%::reason} contains {_r}:
+				remove 1 from {_amt}
+	if {_amt} == 1:
+		set {_offense} to ""
+	if {_amt} >= 2:
+		set {_offense} to " (%{_amt}%)"
+	set {_mult} to 2 ^ ({_amt} - 1)
+	set {_tsn} to {_tsn} * {_mult}
+	set {_ts} to "%{_tsn}%%{_tst}%"
+	format gui slot {_i} of {_s} with lime dye named "&6%{_r}%&6%{_offense}%" with lore "" and "&7%getLowerTimespan({_ts})%" and "&7Click to mute" and "" to run:
+		close {_s}'s inventory
+		if {silentmode::%{_u}%} is true:
+			make {_s} execute command "mute %{_p}% %{_ts}% %{_r}%%{_offense}% -s"
+		else:
+			make {_s} execute command "mute %{_p}% %{_ts}% %{_r}%%{_offense}%"
+
+function formatBanReason(s: player, p: offline player, i: integer, r: text, tsn: integer, tst: text):
+	set {_u} to uuid of {_s}
+	set {_up} to uuid of {_p}
+	set {_amt} to 1
+	loop {punishments::%{_up}%::received::*}:
+		set {_c} to loop-value
+		if {punishment::%{_c}%::type} is "Ban":
+			if {punishment::%{_c}%::reason} contains {_r}:
+				add 1 to {_amt}
+		if {punishment::%{_c}%::type} is "Unban":
+			if {punishment::%{_c}%::reason} contains {_r}:
+				remove 1 from {_amt}
+	if {_amt} == 1:
+		set {_offense} to ""
+	if {_amt} >= 2:
+		set {_offense} to " (%{_amt}%)"
+	set {_mult} to 2 ^ ({_amt} - 1)
+	set {_tsn} to {_tsn} * {_mult}
+	set {_ts} to "%{_tsn}%%{_tst}%"
+	if {_ts} contains "Forever":
+		format gui slot {_i} of {_s} with lime dye named "&6%{_r}%&6%{_offense}%" with lore "" and "&7%getLowerTimespan({_ts})%" and "&7Click to ban" and "" to run:
+			close {_s}'s inventory
+			if {silentmode::%{_u}%} is true:
+				make {_s} execute command "ban %{_p}% %{_r}%%{_offense}% -s"
+			else:
+				make {_s} execute command "ban %{_p}% %{_r}%%{_offense}%"
+	else:
+		format gui slot {_i} of {_s} with lime dye named "&6%{_r}%&6%{_offense}%" with lore "" and "&7%getLowerTimespan({_ts})%" and "&7Click to ban" and "" to run:
+			close {_s}'s inventory
+			if {silentmode::%{_u}%} is true:
+				make {_s} execute command "ban %{_p}% %{_ts}% %{_r}%%{_offense}% -s"
+			else:
+				make {_s} execute command "ban %{_p}% %{_ts}% %{_r}%%{_offense}%"
+
+function formatIPbanReason(s: player, p: offline player, i: integer, r: text):
+	set {_u} to uuid of {_s}
+	format gui slot {_i} of {_s} with lime dye named "&6%{_r}%" with lore "" and "&7Forever" and "" and "&7Click to IP-Ban" and "" to run:
+		close {_s}'s inventory
+		if {silentmode::%{_u}%} is true:
+			make {_s} execute command "ipban %{_p}% %{_r}% -s"
+		else:
+			make {_s} execute command "ipban %{_p}% %{_r}%"

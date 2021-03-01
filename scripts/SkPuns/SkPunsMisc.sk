@@ -1,0 +1,200 @@
+# # #  OPTIONS  # # #
+
+options:
+	pp: &c&lSkPuns&8 »
+	appeal: https://appeal.com
+	p: &8 »
+
+
+
+# # #  BAN/IP-BAN  # # #
+on join:
+	if player has permission "*":
+		stop
+	set {_ip} to player's ip
+	if {punish::%{_ip}%::ipban} is set:
+		if {punish::%{_ip}%::ipban} contains "Forever":
+			set join message to ""
+			send "{@pp} &c%player% &7tried to join but is currently IP-banned!" to all players where [input has permission "skpuns.notify"]
+			kick player because "{@pp} &7You are permanently IP-banned!%nl%{@p}&7 Reason&8: &6%{punish::%{_ip}%::ipban::reason}%%nl%{@p}&7 Issued by&8: &b%{punish::%{_ip}%::ipban::issuer}%"
+			stop
+		else:
+			if difference between {punish::%{_ip}%::ipban::issued} and now < {punish::%{_ip}%::ipban::timespan}:
+				set join message to ""
+				send "{@pp} &c%player% &7tried to join but is currently IP-banned!" to all players where [input has permission "skpuns.notify"]
+				set {_diff} to difference between {punish::%{_ip}%::ipban} and now
+				set {_diff} to "%{_diff}%"
+				if {_diff} contains ".":
+					set {_diff::*} to {_diff} split at "."
+					set {_diff} to "%{_diff::1}% seconds"
+				kick player because "{@pp} &7You are temporarily IP-banned!%nl%{@p}&7 Reason&8: &6%{punish::%{_ip}%::ipban::reason}%%nl%{@p}&7 Issued by&8: &b%{punish::%{_ip}%::ipban::issuer}%%nl%{@p}&7 Remaining duration&8: &c%{_diff}%"
+				stop
+			else:
+				delete {punish::%uuid of player%::ipban::*}
+				delete {punish::%uuid of player%::ipban}
+	else if {punish::%uuid of player%::ban} is set:
+		if {punish::%uuid of player%::ban} contains "Forever":
+			set join message to ""
+			send "{@pp} &c%player% &7tried to join but is currently banned!" to all players where [input has permission "skpuns.notify"]
+			kick player because "{@pp} &7You are permanently banned!%nl%{@p}&7 Reason&8: &6%{punish::%uuid of player%::ban::reason}%%nl%{@p}&7 Issued by&8: &b%{punish::%uuid of player%::ban::issuer}%%nl%{@p} &7Appeal at &a{@appeal}"
+			stop
+		else:
+			if difference between {punish::%uuid of player%::ban::issued} and now < {punish::%uuid of player%::ban::timespan}:
+				set join message to ""
+				send "{@pp} &c%player% &7tried to join but is currently banned!" to all players where [input has permission "skpuns.notify"]
+				set {_diff} to difference between {punish::%uuid of player%::ban} and now
+				set {_diff} to "%{_diff}%"
+				if {_diff} contains ".":
+					set {_diff::*} to {_diff} split at "."
+					if {_diff} contains "seconds":
+						set {_diff} to "%{_diff::1}% seconds"
+					else if {_diff} contains "minutes":
+						set {_diff} to "%{_diff::1}% minutes"
+				if {punish::%uuid of player%::ban::timespan} >= 24 hours:
+					kick player because "{@pp} &7You are temporarily banned!%nl%{@p}&7 Reason&8: &6%{punish::%uuid of player%::ban::reason}%%nl%{@p}&7 Issued by&8: &b%{punish::%uuid of player%::ban::issuer}%%nl%{@p}&7 Remaining duration&8: &c%{_diff}%%nl%{@p} &7Appeal at &a{@appeal}"
+				else:
+					kick player because "{@pp} &7You are temporarily banned!%nl%{@p}&7 Reason&8: &6%{punish::%uuid of player%::ban::reason}%%nl%{@p}&7 Issued by&8: &b%{punish::%uuid of player%::ban::issuer}%%nl%{@p}&7 Remaining duration&8: &c%{_diff}%"
+				stop
+			else:
+				delete {punish::%uuid of player%::ban::*}
+				delete {punish::%uuid of player%::ban}
+
+
+
+# # #  MUTE  # # #
+
+on chat:
+	if player has permission "*":
+		stop
+	if {punish::%uuid of player%::mute} is set:
+		if {punish::%uuid of player%::mute} contains "Forever":
+			cancel event
+			message "{@pp} &7You are permanently muted! Reason&8: &6%{punish::%uuid of player%::mute::reason}%&7. Issued by&8: &b%{punish::%uuid of player%::mute::issuer}%&7. Appeal at &a{@appeal}"
+			send "{@pp} &c%player% &7tried to talk but is currently muted!" to all players where [input has permission "skpuns.notify"]
+			stop
+		else:
+			if difference between {punish::%uuid of player%::mute::issued} and now >= {punish::%uuid of player%::mute::timespan}:
+				cancel event
+				delete {punish::%uuid of player%::mute::*}
+				delete {punish::%uuid of player%::mute}
+			else:
+				cancel event
+				set {_diff} to difference between {punish::%uuid of player%::mute} and now
+				set {_diff} to "%{_diff}%"
+				if {_diff} contains ".":
+					set {_diff::*} to {_diff} split at "."
+					if {_diff} contains "seconds":
+						set {_diff} to "%{_diff::1}% seconds"
+					else if {_diff} contains "minutes":
+						set {_diff} to "%{_diff::1}% minutes"
+				if {punish::%uuid of player%::mute::timespan} >= 24 hours:
+					message "{@pp} &7You are temporarily muted! Reason&8: &6%{punish::%uuid of player%::mute::reason}%&7. Issued by&8: &b%{punish::%uuid of player%::mute::issuer}%&7. Remaining duration&8: &c%{_diff}%&7. Appeal at &a{@appeal}"
+				else:
+					message "{@pp} &7You are temporarily muted! Reason&8: &6%{punish::%uuid of player%::mute::reason}%&7. Issued by&8: &b%{punish::%uuid of player%::mute::issuer}%&7. Remaining duration&8: &c%{_diff}%&7"
+				send "{@pp} &c%player% &7tried to talk but is currently muted!" to all players where [input has permission "skpuns.notify"]
+				stop
+
+
+
+# # #  PANES  # # #
+
+function formatPanes(p: player, l: text, s: integer, c1: item, c2: item):
+	set {_fill} to {_s} * 9
+	remove 1 from {_fill}
+	format gui slot integers between 0 and {_fill} of {_p} with {_c2} named "&7" to do nothing
+	if {_l} is "line":
+		format gui slot integers between 0 and 8 of {_p} with {_c1} named "&7" to do nothing
+		set {_bot} to {_fill} - 8
+		format gui slot integers between {_bot} and {_fill} of {_p} with {_c1} named "&7" to do nothing
+	if {_l} is "round":
+		format gui slot integers between 0 and 8 of {_p} with {_c1} named "&7" to do nothing
+		set {_bot} to {_fill} - 8
+		format gui slot integers between {_bot} and {_fill} of {_p} with {_c1} named "&7" to do nothing
+		set {_left} to 0
+		set {_right} to 8
+		loop {_s} - 2 times:
+			add 9 to {_left}
+			add 9 to {_right}
+			format gui slot {_left} of {_p} with {_c1} named "&7" to do nothing
+			format gui slot {_right} of {_p} with {_c1} named "&7" to do nothing
+
+
+
+# # #  LETTERS  # # #
+
+on script load:
+	set {_letter-pairs::*} to split "Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz" at " "
+	loop {_letter-pairs::*}:
+		set {_pair::*} to loop-value split at ""
+		set {_uppercase} to {_pair::1}
+		set {_lowercase} to {_pair::2}
+		set {letters::uppercase::%{_lowercase}%} to {_uppercase}
+		set {letters::lowercase::%{_uppercase}%} to {_lowercase}
+on script unload:
+	delete {letters::*}
+function switchCaseFor(text: text, to-uppercase: boolean) :: text:
+	set {_characters::*} to {_text} split at ""
+	set {_new} to ""
+	loop {_characters::*}:
+		set {_char} to loop-value
+		if {_to-uppercase} is true:
+			set {_char} to {letters::uppercase::%loop-value%}
+		else:
+			set {_char} to {letters::lowercase::%loop-value%}
+		set {_new} to "%{_new}%%{_char}%"
+	return {_new}
+function uppercase(text: text) :: text:
+	return switchCaseFor({_text}, true)
+function lowercase(text: text) :: text:
+	return switchCaseFor({_text}, false)
+function capitalize(text: text) :: text:
+	replace every ", " in {_text} with "_comma179_"
+	replace every " and " in {_text} with "_and179_"
+	set {_chars::*} to {_text} split at ""
+	loop size of {_chars::*} times:
+		set {_l} to {_chars::%loop-num%}
+		if {_l} is not "_comma179_" or "_and179_":
+			if loop-num is 1:
+				add uppercase({_l}) to {_new::*}
+			else:
+				add {_l} to {_new::*}
+		else:
+			add {_l} to {_new::*}
+	set {_out} to "%{_new::*}%"
+	replace every ", " and " and " in {_out} with ""
+	replace every "_comma179_" in {_out} with ", "
+	replace every "_and179_" in {_out} with " and "
+	return {_out}
+
+
+
+# # #  CODE  # # #
+
+function returnCode() :: string:
+	set {_letters::*} to "A" and "B" and "C" and "D" and "E" and "F" and "G" and "H" and "I" and "J" and "K" and "L" and "M" and "N" and "O" and "P" and "Q" and "R" and "S" and "T" and "U" and "V" and "W" and "X" and "Y" and "Z"
+	set {_numbers::*} to "0" and "1" and "2" and "3" and "4" and "5" and "6" and "7" and "8" and "9"
+	chance of 50%:
+		set {_1} to random element out of {_letters::*}
+	else:
+		set {_1} to random element out of {_numbers::*}
+	chance of 50%:
+		set {_2} to random element out of {_letters::*}
+	else:
+		set {_2} to random element out of {_numbers::*}
+	chance of 50%:
+		set {_3} to random element out of {_letters::*}
+	else:
+		set {_3} to random element out of {_numbers::*}
+	chance of 50%:
+		set {_4} to random element out of {_letters::*}
+	else:
+		set {_4} to random element out of {_numbers::*}
+	chance of 50%:
+		set {_5} to random element out of {_letters::*}
+	else:
+		set {_5} to random element out of {_numbers::*}
+	chance of 50%:
+		set {_6} to random element out of {_letters::*}
+	else:
+		set {_6} to random element out of {_numbers::*}
+	return "%{_1}%%{_2}%%{_3}%%{_4}%%{_5}%%{_6}%"

@@ -1,0 +1,30 @@
+Permissions:
+    
+    Kick: skpuns.kick
+    Warn: skpuns.warn
+    Mute: skpuns.mute
+    Ban: skpuns.ban
+    IP-Ban: skpuns.ipban
+
+    Unmute: skpuns.unmute
+    Unban: skpuns.unban
+    Un IP-Ban: skpuns.unipban
+
+    Punish GUI: skpuns.punish
+    
+    History: skpuns.history
+    Clear History: skpuns.clear
+
+    Staff History: skpuns.staffhistory
+    Clear Staff History: skpuns.clearstaffhistory
+
+    Remove Punishment: skpuns.removepun
+
+    Notifications (Join/chat while muted/banned, silent punishments): skpuns.notfy
+
+    Check Alts: skpuns.alts
+    Check IP's: skpuns.ips
+
+    Exempt: skpuns.exempt.(number between 1 and 10)
+
+    Manage Presets: skpuns.managepresets
