@@ -1,0 +1,1146 @@
+# # #  OPTIONS  # # #
+
+options:
+	noperm: &4You do not have access to this command.
+	p: &8 »
+	pl: &c&lSkPuns&8 »
+	ps: &7&o[Silent] &c&lSkPuns&8 »
+	logo: &8» &c&lSkPuns «
+	line: &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m &8&m 
+	appeal: https://appeal.com
+
+
+
+# # #  MISC  # # #
+
+every 10 seconds:
+	loop {activepuns::*}:
+		if {punish::%loop-value%::mute::*} is set:
+			set {_t} to "mute"
+		else if {punish::%loop-value%::ban::*} is set:
+			set {_t} to "ban"
+		else:
+			stop
+		if difference between {punish::%loop-value%::%{_t}%::issued} and now >= {punish::%loop-value%::%{_t}%::timespan}:
+			clear {punish::%loop-value%::%{_t}%::*}
+			delete {punish::%loop-value%::%{_t}%}
+			remove loop-value from {activepuns::*}
+
+on join:
+	wait 1 tick
+	set {_ip} to player's ip
+	if {punish::%{_ip}%::ipban} is set:
+		stop
+	if {punish::%uuid of player%::ban} is set:
+		stop
+	set {punishmentsystem::ip::%uuid of player%} to player's ip
+	add player's ip to {punishmentsystem::iplist::%uuid of player%::*} if {punishmentsystem::iplist::%uuid of player%::*} does not contain player's ip
+	loop {punishmentsystem::iplist::%uuid of player%::*}:
+		add uuid of player to {punishmentsystem::alts::%loop-value%::*} if {punishmentsystem::alts::%loop-value%::*} does not contain uuid of player
+		loop {punishmentsystem::alts::%loop-value%::*}:
+			add loop-value-2 to {punishmentsystem::alts::%player's ip%::*} if {punishmentsystem::alts::%player's ip%::*} does not contain loop-value-2
+	if size of {punishmentsystem::alts::%player's ip%::*} > 1:
+		if player does not have permission "skpuns.notify":
+			send "{@line}%nl%{@pl} &c%player%&c's &7known alts&8:" to all players where [input has permission "skpuns.alts"]
+			set {_p::*} to all players
+			loop {punishmentsystem::iplist::%uuid of player%::*}:
+				loop {punishmentsystem::alts::%loop-value%::*}:
+					add loop-value-2 to {_accounts::*} if {_accounts::*} does not contain loop-value-2
+			loop {_accounts::*}:
+				set {_p} to loop-value parsed as offline player
+				if {punish::%loop-value%::ban} is set:
+					send "{@p} &c%{_p}%" to all players where [input has permission "skpuns.alts"]
+				else if {punish::%loop-value%::mute} is set:
+					send "{@p} &6%{_p}%" to all players where [input has permission "skpuns.alts"]
+				else if {_p::*} contains {_p}:
+					send "{@p} &a%{_p}%" to all players where [input has permission "skpuns.alts"]
+				else:
+					send "{@p} &7%{_p}%" to all players where [input has permission "skpuns.alts"]
+			send "{@line}" to all players where [input has permission "skpuns.alts"]
+
+command /alts <offline player>:
+	permission: skpuns.alts
+	permission message: {@noperm}
+	usage: Usage: /alts <player>
+	trigger:
+		message "{@line}%nl%{@pl} &c%arg-1%&c's &7known alts&8:"
+		set {_p::*} to all players
+		loop {punishmentsystem::iplist::%uuid of arg-1%::*}:
+			loop {punishmentsystem::alts::%loop-value%::*}:
+				add loop-value-2 to {_accounts::*} if {_accounts::*} does not contain loop-value-2
+		loop {_accounts::*}:
+			set {_p} to loop-value parsed as offline player
+			if {punish::%loop-value%::ban} is set:
+				message "{@p} &c%{_p}%"
+			else if {punish::%loop-value%::mute} is set:
+				message "{@p} &6%{_p}%"
+			else if {_p::*} contains {_p}:
+				message "{@p} &a%{_p}%"
+			else:
+				message "{@p} &7%{_p}%"
+		message "{@line}"
+
+command /ips <offline player>:
+	permission: skpuns.ips
+	permission message: {@noperm}
+	usage: Usage: /ips <player>
+	trigger:
+		message "{@line}%nl%{@pl} &c%arg-1%&c's &7known IP's&8:"
+		set {_p::*} to all players
+		loop {punishmentsystem::iplist::%uuid of arg-1%::*}:
+			set {_ip} to "&7%loop-value%"
+			if {punish::%loop-value%::ipban::*} is set:
+				set {_ip} to "&c%loop-value%"
+			loop all players:
+				if loop-player's ip is loop-value-1:
+					set {_ip} to "&a%loop-value-1%"
+			message "{@p} %colored {_ip}%"
+		message "{@line}"
+
+function getPunExempt(p: offline player) :: integer:
+	if {_p} has permission "skpuns.exempt.1":
+		return 1
+	else if {_p} has permission "skpuns.exempt.2":
+		return 2
+	else if {_p} has permission "skpuns.exempt.3":
+		return 3
+	else if {_p} has permission "skpuns.exempt.4":
+		return 4
+	else if {_p} has permission "skpuns.exempt.5":
+		return 5
+	else if {_p} has permission "skpuns.exempt.6":
+		return 6
+	else if {_p} has permission "skpuns.exempt.7":
+		return 7
+	else if {_p} has permission "skpuns.exempt.8":
+		return 8
+	else if {_p} has permission "skpuns.exempt.9":
+		return 9
+	else if {_p} has permission "skpuns.exempt.10":
+		return 10
+	else:
+		return 0
+
+function getTimespan(t: text) :: text:
+	if {_t} contains "mo":
+		replace every "mo" in {_t} with " days"
+		set {_t::*} to {_t} split at " "
+		set {_num} to {_t::1} parsed as integer
+		set {_num} to {_num} * 30
+		set {_t} to "%{_num}% days"
+	else if {_t} contains "s":
+		replace every "s" in {_t} with " seconds"
+	else if {_t} contains "m":
+		replace every "m" in {_t} with " minutes"
+	else if {_t} contains "h":
+		replace every "h" in {_t} with " hours"
+	else if {_t} contains "d":
+		replace every "d" in {_t} with " days"
+	else if {_t} contains "w":
+		replace every "w" in {_t} with " days"
+		set {_t::*} to {_t} split at " "
+		set {_num} to {_t::1} parsed as integer
+		set {_num} to {_num} * 7
+		set {_t} to "%{_num}% days"
+	else if {_t} contains "y":
+		replace every "y" in {_t} with " days"
+		set {_t::*} to {_t} split at " "
+		set {_num} to {_t::1} parsed as integer
+		set {_num} to {_num} * 365
+		set {_t} to "%{_num}% days"
+	else:
+		return "Forever"
+		stop
+	set {_test} to {_t} parsed as timespan
+	set {_out} to "%{_test}%"
+	if {_out} contains "none":
+		return "Forever"
+	else:
+		return {_out}
+
+function getUpperTimespan(t: text) :: text:
+	if {_t} contains "mo":
+		replace every "mo" in {_t} with " days"
+		set {_t::*} to {_t} split at " "
+		set {_num} to {_t::1} parsed as integer
+		set {_num} to {_num} * 30
+		set {_t} to "%{_num}% days"
+	else if {_t} contains "s":
+		replace every "s" in {_t} with " seconds"
+	else if {_t} contains "m":
+		replace every "m" in {_t} with " minutes"
+	else if {_t} contains "h":
+		replace every "h" in {_t} with " hours"
+	else if {_t} contains "d":
+		replace every "d" in {_t} with " days"
+	else if {_t} contains "w":
+		replace every "w" in {_t} with " days"
+		set {_t::*} to {_t} split at " "
+		set {_num} to {_t::1} parsed as integer
+		set {_num} to {_num} * 7
+		set {_t} to "%{_num}% days"
+	else if {_t} contains "y":
+		replace every "y" in {_t} with " days"
+		set {_t::*} to {_t} split at " "
+		set {_num} to {_t::1} parsed as integer
+		set {_num} to {_num} * 365
+		set {_t} to "%{_num}% days"
+	else:
+		return "FOREVER"
+		stop
+	set {_test} to {_t} parsed as timespan
+	set {_out} to "%{_test}%"
+	if {_out} contains "none":
+		return "FOREVER"
+	else:
+		return uppercase({_out})
+
+function getLowerTimespan(t: text) :: text:
+	if {_t} contains "mo":
+		replace every "mo" in {_t} with " days"
+		set {_t::*} to {_t} split at " "
+		set {_num} to {_t::1} parsed as integer
+		set {_num} to {_num} * 30
+		set {_t} to "%{_num}% days"
+	else if {_t} contains "s":
+		replace every "s" in {_t} with " seconds"
+	else if {_t} contains "m":
+		replace every "m" in {_t} with " minutes"
+	else if {_t} contains "h":
+		replace every "h" in {_t} with " hours"
+	else if {_t} contains "d":
+		replace every "d" in {_t} with " days"
+	else if {_t} contains "w":
+		replace every "w" in {_t} with " days"
+		set {_t::*} to {_t} split at " "
+		set {_num} to {_t::1} parsed as integer
+		set {_num} to {_num} * 7
+		set {_t} to "%{_num}% days"
+	else if {_t} contains "y":
+		replace every "y" in {_t} with " days"
+		set {_t::*} to {_t} split at " "
+		set {_num} to {_t::1} parsed as integer
+		set {_num} to {_num} * 365
+		set {_t} to "%{_num}% days"
+	else:
+		return "Forever"
+		stop
+	set {_test} to {_t} parsed as timespan
+	set {_out} to "%{_test}%"
+	if {_out} contains "none":
+		return "Forever"
+	else:
+		return lowercase({_out})
+
+
+
+# # #  ADD PUNISHMENT  # # #
+
+function addPun(s: sender, p: offline player, t: text, r: text, d: text, sl: boolean):
+	set {_us} to uuid of {_s}
+	set {_up} to uuid of {_p}
+	set {_c} to "%returnCode()%-%unix timestamp of now%"
+	add {_c} to {punishments::allpuns::*}
+	add {_c} to {punishments::%{_up}%::received::*}
+	add {_c} to {punishments::%{_us}%::issued::*}
+	if {_sl} is false:
+		set {punishment::%{_c}%::silent} to "&cFalse"
+	else:
+		set {punishment::%{_c}%::silent} to "&aTrue"
+	set {punishment::%{_c}%::issuer} to {_us}
+	set {punishment::%{_c}%::player} to {_up}
+	set {punishment::%{_c}%::reason} to {_r}
+	set {punishment::%{_c}%::type} to capitalize({_t})
+	if {_t} is "kick" or "warn" or "unmute" or "unban" or "unipban":
+		set {punishment::%{_c}%::timespan} to "N/A"
+	else:
+		set {_ts} to getTimespan("%{_d}%")
+		set {_ts} to {_ts} parsed as timespan
+		set {punishment::%{_c}%::timespan} to {_ts}
+	if {_t} is not "ipban":
+		set {punish::%{_up}%::%{_t}%::reason} to {_r}
+		set {punish::%{_up}%::%{_t}%::issuer} to {_s}
+		set {_ts} to {_d} parsed as timespan
+		set {punish::%{_up}%::%{_t}%::timespan} to {_ts}
+		set {punish::%{_up}%::%{_t}%::issued} to now
+		add {_up} to {activepuns::*}
+	else:
+		loop {punishmentsystem::iplist::%{_up}%::*}:
+			set {_ip} to loop-value
+			set {punish::%{_ip}%::%{_t}%::reason} to {_r}
+			set {punish::%{_ip}%::%{_t}%::issuer} to {_s}
+			set {_ts} to {_d} parsed as timespan
+			set {punish::%{_ip}%::%{_t}%::timespan} to {_ts}
+			set {punish::%{_ip}%::%{_t}%::issued} to now
+			add {_ip} to {activepuns::*}
+	set {punishment::%{_c}%::timestamp} to "%now% GMT"
+
+
+
+# # #  KICK  # # #
+
+command /kick <offline player> [<text>]:
+	permission: skpuns.kick
+	permission message: {@noperm}
+	usage: Usage: /kick <player> <reason> [-s]
+	trigger:
+		if arg-2 is set:
+			set {_ep} to getPunExempt(arg-1)
+			if sender is a player:
+				set {_es} to getPunExempt(sender)
+			else:
+				set {_es} to 3
+			if {_es} > {_ep}:
+				set {_r} to arg-2
+				if {_r} contains " -s":
+					set {_sl} to true
+					replace every " -s" in {_r} with ""
+				else:
+					set {_sl} to false
+				addPun(sender, arg-1, "kick", {_r}, "0s", {_sl})
+				if {_sl} is false:
+					broadcast "{@pl} &c%arg-1% &7was kicked by &b%sender%&7. Reason&8: &6%{_r}%"
+				else:
+					send "{@ps} &c%arg-1% &7was kicked by &b%sender%&7. Reason&8: &6%{_r}%" to all players where [input has permission "skpuns.notify"]
+				kick arg-1 because "{@pl} &7You have been kicked!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Issued by&8: &b%sender%"
+			else:
+				message "{@p} &cYou cannot kick this player"
+		else:
+			punishGUI(player, arg-1, 1)
+
+
+
+# # #  WARN  # # #
+
+command /warn <offline player> [<text>]:
+	permission: skpuns.warn
+	permission message: {@noperm}
+	usage: Usage: /warn <player> <reason> [-s]
+	trigger:
+		if arg-2 is set:
+			set {_ep} to getPunExempt(arg-1)
+			if sender is a player:
+				set {_es} to getPunExempt(sender)
+			else:
+				set {_es} to 3
+			if {_es} > {_ep}:
+				set {_r} to arg-2
+				if {_r} contains " -s":
+					set {_sl} to true
+					replace every " -s" in {_r} with ""
+				else:
+					set {_sl} to false
+				addPun(sender, arg-1, "warn", {_r}, "0s", {_sl})
+				if {_sl} is false:
+					broadcast "{@pl} &c%arg-1% &7was warned by &b%sender%&7. Reason&8: &6%{_r}%"
+				else:
+					send "{@ps} &c%arg-1% &7was warned by &b%sender%&7. Reason&8: &6%{_r}%" to all players where [input has permission "skpuns.notify"]
+				send "{@pl} &7You have been warned!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Issued by&8: &b%sender%" to arg-1
+			else:
+				message "{@p} &cYou cannot warn this player"
+		else:
+			punishGUI(player, arg-1, 2)
+
+
+
+# # #  MUTE  # # #
+
+command /mute <offline player> [<text>] [<text>]:
+	permission: skpuns.mute
+	permission message: {@noperm}
+	usage: Usage: /mute <player> [timespan] <reason> [-s]
+	trigger:
+		if arg-2 is set:
+			if {punish::%uuid of arg-1%::mute} is not set:
+				set {_ep} to getPunExempt(arg-1)
+				if sender is a player:
+					set {_es} to getPunExempt(sender)
+				else:
+					set {_es} to 3
+				if {_es} > {_ep}:
+					set {_ts} to arg-2
+					replace every " " in {_ts} with ""
+					set {_rts} to {_ts}
+					set {_ts} to getTimespan({_ts})
+					set {_ts} to {_ts} parsed as timespan
+					set {_tsl} to getLowerTimespan(arg-2)
+					set {_tsu} to getUpperTimespan(arg-2)
+					if "%{_ts}%" is "Forever":
+						if arg-3 is set:
+							set {_r} to "%arg-2% %arg-3%"
+						else:
+							set {_r} to arg-2
+					else:
+						if arg-3 is set:
+							set {_r} to arg-3
+						else:
+							message "Usage: /mute <player> [timespan] <reason> [-s]"
+							stop
+					if {_r} contains " -s":
+						set {_sl} to true
+						replace every " -s" in {_r} with ""
+					else:
+						set {_sl} to false
+					addPun(sender, arg-1, "mute", {_r}, {_rts}, {_sl})
+					if {_sl} is false:
+						broadcast "{@pl} &c%arg-1% &7was muted by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]"
+					else:
+						send "{@ps} &c%arg-1% &7was muted by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to all players where [input has permission "skpuns.notify"]
+					send "{@pl} &7You have been muted!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Duration&8: &c%{_tsl}%%nl%{@p} &7Issued by&8: &b%sender%" to arg-1
+					if {_tsl} is "Forever":
+						send "{@p} &7Appeal at &a{@appeal}" to arg-1
+					else if {_ts} >= 24 hours:
+						send "{@p} &7Appeal at &a{@appeal}" to arg-1
+					if {_tsl} is not "Forever":
+						set {_duration} to {_ts}
+						set {punish::%uuid of arg-1%::mute} to now
+						add {_duration} to {punish::%uuid of arg-1%::mute}
+					else:
+						set {punish::%uuid of arg-1%::mute} to "Forever"
+				else:
+					message "{@p} &cYou cannot mute this player"
+			else:
+				message "{@p} &c%arg-1% &cis already muted"
+		else:
+			punishGUI(player, arg-1, 3)
+
+command /tempmute <offline player> [<text>] [<text>]:
+	permission: skpuns.mute
+	permission message: {@noperm}
+	usage: Usage: /mute <player> [timespan] <reason> [-s]
+	trigger:
+		if arg-2 is set:
+			if {punish::%uuid of arg-1%::mute} is not set:
+				set {_ep} to getPunExempt(arg-1)
+				if sender is a player:
+					set {_es} to getPunExempt(sender)
+				else:
+					set {_es} to 3
+				if {_es} > {_ep}:
+					set {_ts} to arg-2
+					replace every " " in {_ts} with ""
+					set {_rts} to {_ts}
+					set {_ts} to getTimespan({_ts})
+					set {_ts} to {_ts} parsed as timespan
+					set {_tsl} to getLowerTimespan(arg-2)
+					set {_tsu} to getUpperTimespan(arg-2)
+					if "%{_ts}%" is "Forever":
+						if arg-3 is set:
+							set {_r} to "%arg-2% %arg-3%"
+						else:
+							set {_r} to arg-2
+					else:
+						if arg-3 is set:
+							set {_r} to arg-3
+						else:
+							message "Usage: /mute <player> [timespan] <reason> [-s]"
+							stop
+					if {_r} contains " -s":
+						set {_sl} to true
+						replace every " -s" in {_r} with ""
+					else:
+						set {_sl} to false
+					addPun(sender, arg-1, "mute", {_r}, {_rts}, {_sl})
+					if {_sl} is false:
+						broadcast "{@pl} &c%arg-1% &7was muted by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]"
+					else:
+						send "{@ps} &c%arg-1% &7was muted by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to all players where [input has permission "skpuns.notify"]
+					send "{@pl} &7You have been muted!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Duration&8: &c%{_tsl}%%nl%{@p} &7Issued by&8: &b%sender%" to arg-1
+					if {_tsl} is "Forever":
+						send "{@p} &7Appeal at &a{@appeal}" to arg-1
+					else if {_ts} >= 24 hours:
+						send "{@p} &7Appeal at &a{@appeal}" to arg-1
+					if {_tsl} is not "Forever":
+						set {_duration} to {_ts}
+						set {punish::%uuid of arg-1%::mute} to now
+						add {_duration} to {punish::%uuid of arg-1%::mute}
+					else:
+						set {punish::%uuid of arg-1%::mute} to "Forever"
+				else:
+					message "{@p} &cYou cannot mute this player"
+			else:
+				message "{@p} &c%arg-1% &cis already muted"
+		else:
+			punishGUI(player, arg-1, 3)
+
+
+
+# # #  BAN  # # #
+
+command /ban <offline player> [<text>] [<text>]:
+	permission: skpuns.ban
+	permission message: {@noperm}
+	usage: Usage: /ban <player> [timespan] <reason> [-s]
+	trigger:
+		if arg-2 is set:
+			if {punish::%uuid of arg-1%::ban} is not set:
+				set {_ep} to getPunExempt(arg-1)
+				if sender is a player:
+					set {_es} to getPunExempt(sender)
+				else:
+					set {_es} to 3
+				if {_es} > {_ep}:
+					set {_ts} to arg-2
+					replace every " " in {_ts} with ""
+					set {_rts} to {_ts}
+					set {_ts} to getTimespan({_ts})
+					set {_ts} to {_ts} parsed as timespan
+					set {_tsl} to getLowerTimespan(arg-2)
+					set {_tsu} to getUpperTimespan(arg-2)
+					if "%{_ts}%" is "Forever":
+						if arg-3 is set:
+							set {_r} to "%arg-2% %arg-3%"
+						else:
+							set {_r} to arg-2
+					else:
+						if arg-3 is set:
+							set {_r} to arg-3
+						else:
+							message "Usage: /ban <player> [timespan] <reason> [-s]"
+							stop
+					if {_r} contains " -s":
+						set {_sl} to true
+						replace every " -s" in {_r} with ""
+					else:
+						set {_sl} to false
+					if {_sl} is false:
+						broadcast "{@pl} &c%arg-1% &7was banned by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]"
+					else:
+						send "{@ps} &c%arg-1% &7was banned by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to all players where [input has permission "skpuns.notify"]
+					if {_tsl} is "Forever":
+						set {_appeal} to true
+					else if {_ts} >= 24 hours:
+						set {_appeal} to true
+					if {_appeal} is true:
+						kick arg-1 because "{@pl} &7You have been banned!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Duration&8: &c%{_tsl}%%nl%{@p} &7Issued by&8: &b%sender%%nl%{@p} &7Appeal at &a{@appeal}"
+					else:
+						kick arg-1 because "{@pl} &7You have been banned!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Duration&8: &c%{_tsl}%%nl%{@p} &7Issued by&8: &b%sender%"
+					addPun(sender, arg-1, "ban", {_r}, {_rts}, {_sl})
+					if {_tsl} is not "Forever":
+						set {_duration} to {_ts}
+						set {punish::%uuid of arg-1%::ban} to now
+						add {_duration} to {punish::%uuid of arg-1%::ban}
+					else:
+						set {punish::%uuid of arg-1%::ban} to "Forever"
+				else:
+					message "{@p} &cYou cannot ban this player"
+			else:
+				message "{@p} &c%arg-1% &cis already banned"
+		else:
+			punishGUI(player, arg-1, 4)
+
+command /tempban <offline player> [<text>] [<text>]:
+	permission: skpuns.ban
+	permission message: {@noperm}
+	usage: Usage: /ban <player> [timespan] <reason> [-s]
+	trigger:
+		if arg-2 is set:
+			if {punish::%uuid of arg-1%::ban} is not set:
+				set {_ep} to getPunExempt(arg-1)
+				if sender is a player:
+					set {_es} to getPunExempt(sender)
+				else:
+					set {_es} to 3
+				if {_es} > {_ep}:
+					set {_ts} to arg-2
+					replace every " " in {_ts} with ""
+					set {_rts} to {_ts}
+					set {_ts} to getTimespan({_ts})
+					set {_ts} to {_ts} parsed as timespan
+					set {_tsl} to getLowerTimespan(arg-2)
+					set {_tsu} to getUpperTimespan(arg-2)
+					if "%{_ts}%" is "Forever":
+						if arg-3 is set:
+							set {_r} to "%arg-2% %arg-3%"
+						else:
+							set {_r} to arg-2
+					else:
+						if arg-3 is set:
+							set {_r} to arg-3
+						else:
+							message "Usage: /ban <player> [timespan] <reason> [-s]"
+							stop
+					if {_r} contains " -s":
+						set {_sl} to true
+						replace every " -s" in {_r} with ""
+					else:
+						set {_sl} to false
+					if {_sl} is false:
+						broadcast "{@pl} &c%arg-1% &7was banned by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]"
+					else:
+						send "{@ps} &c%arg-1% &7was banned by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to all players where [input has permission "skpuns.notify"]
+					if {_tsl} is "Forever":
+						set {_appeal} to true
+					else if {_ts} >= 24 hours:
+						set {_appeal} to true
+					if {_appeal} is true:
+						kick arg-1 because "{@pl} &7You have been banned!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Duration&8: &c%{_tsl}%%nl%{@p} &7Issued by&8: &b%sender%%nl%{@p} &7Appeal at &a{@appeal}"
+					else:
+						kick arg-1 because "{@pl} &7You have been banned!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Duration&8: &c%{_tsl}%%nl%{@p} &7Issued by&8: &b%sender%"
+					addPun(sender, arg-1, "ban", {_r}, {_rts}, {_sl})
+					if {_tsl} is not "Forever":
+						set {_duration} to {_ts}
+						set {punish::%uuid of arg-1%::ban} to now
+						add {_duration} to {punish::%uuid of arg-1%::ban}
+					else:
+						set {punish::%uuid of arg-1%::ban} to "Forever"
+				else:
+					message "{@p} &cYou cannot ban this player"
+			else:
+				message "{@p} &c%arg-1% &cis already banned"
+		else:
+			punishGUI(player, arg-1, 4)
+
+
+
+# # #  IP BAN  # # #
+
+command /ipban <offline player> [<text>]:
+	permission: skpuns.ipban
+	permission message: {@noperm}
+	usage: Usage: /ipban <player> <reason> [-s]
+	trigger:
+		if arg-2 is set:
+			loop {punishmentsystem::iplist::%uuid of arg-1%::*}:
+				if {punish::%loop-value%::ipban} is not set:
+					set {_ipbanned} to false
+			if {_ipbanned} is false:
+				set {_ep} to getPunExempt(arg-1)
+				if sender is a player:
+					set {_es} to getPunExempt(sender)
+				else:
+					set {_es} to 3
+				if {_es} > {_ep}:
+					set {_r} to arg-2
+					if {_r} contains " -s":
+						set {_sl} to true
+						replace every " -s" in {_r} with ""
+					else:
+						set {_sl} to false
+					if {_sl} is false:
+						broadcast "{@pl} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%"
+					else:
+						send "{@ps} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%" to all players where [input has permission "skpuns.notify"]
+					loop {punishmentsystem::iplist::%uuid of arg-1%::*}:
+						set {punish::%loop-value%::ipban} to "Forever"
+						loop all players:
+							if loop-player's ip is loop-value-1:
+								if {_r} contains "Evasion":
+									kick loop-player because "{@pl} &7You have been IP-banned!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Issued by&8: &b%sender%"
+								else:
+									kick loop-player because "{@pl} &7You have been IP-banned!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Issued by&8: &b%sender%&7. Appeal at &a{@appeal}"
+					addPun(sender, arg-1, "ipban", {_r}, "0s", {_sl})
+				else:
+					message "{@p} &cYou cannot IP-ban this player"
+			else:
+				message "{@p} &c%arg-1% &cis already IP-banned"
+		else:
+			punishGUI(player, arg-1, 5)
+
+command /banip <offline player> [<text>]:
+	permission: skpuns.ipban
+	permission message: {@noperm}
+	usage: Usage: /ipban <player> <reason> [-s]
+	trigger:
+		if arg-2 is set:
+			loop {punishmentsystem::iplist::%uuid of arg-1%::*}:
+				if {punish::%loop-value%::ipban} is not set:
+					set {_ipbanned} to false
+			if {_ipbanned} is false:
+				set {_ep} to getPunExempt(arg-1)
+				if sender is a player:
+					set {_es} to getPunExempt(sender)
+				else:
+					set {_es} to 3
+				if {_es} > {_ep}:
+					set {_r} to arg-2
+					if {_r} contains " -s":
+						set {_sl} to true
+						replace every " -s" in {_r} with ""
+					else:
+						set {_sl} to false
+					if {_sl} is false:
+						broadcast "{@pl} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%"
+					else:
+						send "{@ps} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%" to all players where [input has permission "skpuns.notify"]
+					loop {punishmentsystem::iplist::%uuid of arg-1%::*}:
+						set {punish::%loop-value%::ipban} to "Forever"
+						loop all players:
+							if loop-player's ip is loop-value-1:
+								if {_r} contains "Evasion":
+									kick loop-player because "{@pl} &7You have been IP-banned!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Issued by&8: &b%sender%"
+								else:
+									kick loop-player because "{@pl} &7You have been IP-banned!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Issued by&8: &b%sender%&7. Appeal at &a{@appeal}"
+					addPun(sender, arg-1, "ipban", {_r}, "0s", {_sl})
+				else:
+					message "{@p} &cYou cannot IP-ban this player"
+			else:
+				message "{@p} &c%arg-1% &cis already IP-banned"
+		else:
+			punishGUI(player, arg-1, 5)
+
+command /ban-ip <offline player> [<text>]:
+	permission: skpuns.ipban
+	permission message: {@noperm}
+	usage: Usage: /ipban <player> <reason> [-s]
+	trigger:
+		if arg-2 is set:
+			loop {punishmentsystem::iplist::%uuid of arg-1%::*}:
+				if {punish::%loop-value%::ipban} is not set:
+					set {_ipbanned} to false
+			if {_ipbanned} is false:
+				set {_ep} to getPunExempt(arg-1)
+				if sender is a player:
+					set {_es} to getPunExempt(sender)
+				else:
+					set {_es} to 3
+				if {_es} > {_ep}:
+					set {_r} to arg-2
+					if {_r} contains " -s":
+						set {_sl} to true
+						replace every " -s" in {_r} with ""
+					else:
+						set {_sl} to false
+					if {_sl} is false:
+						broadcast "{@pl} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%"
+					else:
+						send "{@ps} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%" to all players where [input has permission "skpuns.notify"]
+					loop {punishmentsystem::iplist::%uuid of arg-1%::*}:
+						set {punish::%loop-value%::ipban} to "Forever"
+						loop all players:
+							if loop-player's ip is loop-value-1:
+								if {_r} contains "Evasion":
+									kick loop-player because "{@pl} &7You have been IP-banned!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Issued by&8: &b%sender%"
+								else:
+									kick loop-player because "{@pl} &7You have been IP-banned!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Issued by&8: &b%sender%&7. Appeal at &a{@appeal}"
+					addPun(sender, arg-1, "ipban", {_r}, "0s", {_sl})
+				else:
+					message "{@p} &cYou cannot IP-ban this player"
+			else:
+				message "{@p} &c%arg-1% &cis already IP-banned"
+		else:
+			punishGUI(player, arg-1, 5)
+
+
+
+# # #  UNMUTE  # # #
+
+command /unmute <offline player> [<text>]:
+	permission: skpuns.unmute
+	permission message: {@noperm}
+	usage: Usage: /unmute <player> [-s]
+	trigger:
+		if {punish::%uuid of arg-1%::mute} is set:
+			if arg-2 is "-s":
+				send "{@ps} &c%arg-1% &7was unmuted by &b%sender%" to all players where [input has permission "skpuns.notify"]
+				set {_sl} to true
+			else:
+				broadcast "{@pl} &c%arg-1% &7was unmuted by &b%sender%"
+				set {_sl} to false
+			send "{@pl} &7You have been unmuted" to arg-1
+			addPun(sender, arg-1, "unmute", {punish::%uuid of arg-1%::mute::reason}, "0s", {_sl})
+			clear {punish::%uuid of arg-1%::mute::*}
+			delete {punish::%uuid of arg-1%::mute}
+			remove uuid of arg-1 from {activepuns::*}
+		else:
+			message "{@p} &c%arg-1% &cis not currently muted"
+
+
+
+# # #  UNBAN  # # #
+
+command /unban <offline player> [<text>]:
+	permission: skpuns.unban
+	permission message: {@noperm}
+	usage: Usage: /unban <player> [-s]
+	trigger:
+		if {punish::%uuid of arg-1%::ban} is set:
+			if arg-2 is "-s":
+				send "{@ps} &c%arg-1% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
+				set {_sl} to true
+			else:
+				broadcast "{@pl} &c%arg-1% &7was unbanned by &b%sender%"
+				set {_sl} to false
+			addPun(sender, arg-1, "unban", {punish::%uuid of arg-1%::ban::reason}, "0s", {_sl})
+			clear {punish::%uuid of arg-1%::ban::*}
+			delete {punish::%uuid of arg-1%::ban}
+			remove uuid of arg-1 from {activepuns::*}
+		else:
+			message "{@p} &c%arg-1% &cis not currently banned"
+
+command /pardon <offline player> [<text>]:
+	permission: skpuns.unban
+	permission message: {@noperm}
+	usage: Usage: /unban <player> [-s]
+	trigger:
+		if {punish::%uuid of arg-1%::ban} is set:
+			if arg-2 is "-s":
+				send "{@ps} &c%arg-1% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
+				set {_sl} to true
+			else:
+				broadcast "{@pl} &c%arg-1% &7was unbanned by &b%sender%"
+				set {_sl} to false
+			addPun(sender, arg-1, "unban", {punish::%uuid of arg-1%::ban::reason}, "0s", {_sl})
+			clear {punish::%uuid of arg-1%::ban::*}
+			delete {punish::%uuid of arg-1%::ban}
+			remove uuid of arg-1 from {activepuns::*}
+		else:
+			message "{@p} &c%arg-1% &cis not currently banned"
+
+
+
+# # #  UNBAN IP  # # #
+
+command /unbanip <text>:
+	permission: skpuns.unbanip
+	permission message: {@noperm}
+	usage: Usage: /unbanip <player>
+	trigger:
+		if arg-1 contains ".":
+			set {_ip} to arg-1
+			if {_ip} does not contain ".":
+				message "{@p} &cError while trying to unban this IP (Make sure to put a valid player name or IP)"
+				stop
+			if {punish::%{_ip}%::ipban::*} is set:
+				send "{@ps} &7IP &c%{_ip}% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
+				set {_sl} to true
+				clear {punish::%{_ip}%::ipban::*}
+				delete {punish::%{_ip}%::ipban}
+			else:
+				message "{@p} &cIP &c%{_ip}% &cis not currently banned"
+		else:
+			set {_p} to arg-1 parsed as offline player
+			set {_u} to uuid of {_p}
+			loop {punishmentsystem::iplist::%{_u}%::*}:
+				if {punish::%loop-value%::ipban::*} is set:
+					set {_ipbanned} to true
+			if {_ipbanned} is true:
+				send "{@ps} &7IP &c%{punishmentsystem::iplist::%{_u}%::*}% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
+				set {_sl} to true
+				addPun(sender, {_p}, "unipban", {punish::%{_ip}%::ipban::reason}, "0s", {_sl})
+				loop {punishmentsystem::iplist::%{_u}%::*}:
+					clear {punish::%loop-value%::ipban::*}
+					delete {punish::%loop-value%::ipban}
+			else:
+				message "{@p} &c%{_p}% &cis not currently IP-banned"
+					
+
+command /unipban <text>:
+	permission: skpuns.unbanip
+	permission message: {@noperm}
+	usage: Usage: /unbanip <player>
+	trigger:
+		if arg-1 contains ".":
+			set {_ip} to arg-1
+			if {_ip} does not contain ".":
+				message "{@p} &cError while trying to unban this IP (Make sure to put a valid player name or IP)"
+				stop
+			if {punish::%{_ip}%::ipban::*} is set:
+				send "{@ps} &7IP &c%{_ip}% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
+				set {_sl} to true
+				clear {punish::%{_ip}%::ipban::*}
+				delete {punish::%{_ip}%::ipban}
+			else:
+				message "{@p} &cIP &c%{_ip}% &cis not currently banned"
+		else:
+			set {_p} to arg-1 parsed as offline player
+			set {_u} to uuid of {_p}
+			loop {punishmentsystem::iplist::%{_u}%::*}:
+				if {punish::%loop-value%::ipban::*} is set:
+					set {_ipbanned} to true
+			if {_ipbanned} is true:
+				send "{@ps} &7IP &c%{punishmentsystem::iplist::%{_u}%::*}% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
+				set {_sl} to true
+				addPun(sender, {_p}, "unipban", {punish::%{_ip}%::ipban::reason}, "0s", {_sl})
+				loop {punishmentsystem::iplist::%{_u}%::*}:
+					clear {punish::%loop-value%::ipban::*}
+					delete {punish::%loop-value%::ipban}
+			else:
+				message "{@p} &c%{_p}% &cis not currently IP-banned"
+
+command /pardonip <text>:
+	permission: skpuns.unbanip
+	permission message: {@noperm}
+	usage: Usage: /unbanip <player>
+	trigger:
+		if arg-1 contains ".":
+			set {_ip} to arg-1
+			if {_ip} does not contain ".":
+				message "{@p} &cError while trying to unban this IP (Make sure to put a valid player name or IP)"
+				stop
+			if {punish::%{_ip}%::ipban::*} is set:
+				send "{@ps} &7IP &c%{_ip}% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
+				set {_sl} to true
+				clear {punish::%{_ip}%::ipban::*}
+				delete {punish::%{_ip}%::ipban}
+			else:
+				message "{@p} &cIP &c%{_ip}% &cis not currently banned"
+		else:
+			set {_p} to arg-1 parsed as offline player
+			set {_u} to uuid of {_p}
+			loop {punishmentsystem::iplist::%{_u}%::*}:
+				if {punish::%loop-value%::ipban::*} is set:
+					set {_ipbanned} to true
+			if {_ipbanned} is true:
+				send "{@ps} &7IP &c%{punishmentsystem::iplist::%{_u}%::*}% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
+				set {_sl} to true
+				addPun(sender, {_p}, "unipban", {punish::%{_ip}%::ipban::reason}, "0s", {_sl})
+				loop {punishmentsystem::iplist::%{_u}%::*}:
+					clear {punish::%loop-value%::ipban::*}
+					delete {punish::%loop-value%::ipban}
+			else:
+				message "{@p} &c%{_p}% &cis not currently IP-banned"
+
+
+
+# # #  HISTORY  # # #
+
+command /history <offline player>:
+	permission: skpuns.history
+	permission message: {@noperm}
+	usage: Usage: /history <player>
+	aliases: puns, punishments
+	trigger:
+		history(player, arg-1)
+
+function history(s: player, p: offline player):
+	set {_u} to uuid of {_p}
+	if size of {punishments::%{_u}%::received::*} < 1:
+		send "{@p} &c%{_p}% &chas no punishment history" to {_s}
+		stop
+	loop {punishments::%{_u}%::received::*}:
+		add loop-value to {_sorted::*}
+	set {_size} to size of {punishments::%{_u}%::received::*}
+	set {_size2} to mod({_size}, 5)
+	set {_size3} to {_size} - {_size2}
+	set {_pgs} to {_size3} / 5
+	if {_size2} > 0:
+		add 1 to {_pgs}
+	loop {_pgs} times:
+		set {_index} to loop-num - 1
+		set {_index} to {_index} * 5
+		loop 5 times:
+			set {_num} to {_index} + loop-num-2
+			if {_sorted::%{_num}%} is set:
+				set {_t} to {punishment::%{_sorted::%{_num}%}%::type}
+				if {_t} is "Ipban":
+					set {_t} to "IP-Ban"
+				if {_t} is "Unmute":
+					set {_t} to "(R) Mute"
+				if {_t} is "Unban":
+					set {_t} to "(R) Ban"
+				if {_t} is "Unipban":
+					set {_t} to "(R) IP-Ban"
+				add "{""text"":""\\u00A78 - \\u00A7c%{_t}% \\u00A78(\\u00A76%{punishment::%{_sorted::%{_num}%}%::reason}%\\u00A78)\\n"",""clickEvent"":{""action"":""run_command"",""value"":""/viewpun %{_sorted::%{_num}%}%""}}" to {_pg::%loop-num-1%::*}
+		set {_page::%loop-num%} to "'[{""text"":""%{_p}%\'s History\\n""},%{_pg::%loop-num%::*}%]'"
+		replace every ", " and " and " in {_page::%loop-num%} with ","
+		add {_page::%loop-num%} to {_pages::*}
+	set {_pages} to "[%{_pages::*}%]"
+	replace every ", " and " and " in {_pages} with ","
+	set {_book} to written book with nbt "{pages:%{_pages}%,title:Punishments,author:Ballistix,display:{Lore:[""%{_p}%'s Punishments""]}}"
+	open book {_book} to {_s}
+
+
+
+# # #  STAFF PUNS  # # #
+
+command /staffhistory <offline player>:
+	permission: skpuns.staffhistory
+	permission message: {@noperm}
+	usage: Usage: /staffhistory <player>
+	aliases: sh, ipuns, issuedpuns, issuedpunishments
+	trigger:
+		staffHistory(player, arg-1)
+
+function staffHistory(s: player, p: offline player):
+	set {_u} to uuid of {_p}
+	if size of {punishments::%{_u}%::issued::*} < 1:
+		send "{@p} &c%{_p}% &chas no issued punishment history" to {_s}
+		stop
+	loop {punishments::%{_u}%::issued::*}:
+		add loop-value to {_sorted::*}
+	set {_size} to size of {punishments::%{_u}%::issued::*}
+	set {_size2} to mod({_size}, 5)
+	set {_size3} to {_size} - {_size2}
+	set {_pgs} to {_size3} / 5
+	if {_size2} > 0:
+		add 1 to {_pgs}
+	loop {_pgs} times:
+		set {_index} to loop-num - 1
+		set {_index} to {_index} * 5
+		loop 5 times:
+			set {_num} to {_index} + loop-num-2
+			if {_sorted::%{_num}%} is set:
+				set {_t} to {punishment::%{_sorted::%{_num}%}%::type}
+				if {_t} is "Ipban":
+					set {_t} to "IP-Ban"
+				if {_t} is "Unmute":
+					set {_t} to "(R) Mute"
+				if {_t} is "Unban":
+					set {_t} to "(R) Ban"
+				if {_t} is "Unipban":
+					set {_t} to "(R) IP-Ban"
+				add "{""text"":""\\u00A78 - \\u00A7c%{_t}% \\u00A78(\\u00A76%{punishment::%{_sorted::%{_num}%}%::player} parsed as offline player%\\u00A78)\\n"",""clickEvent"":{""action"":""run_command"",""value"":""/viewpun %{_sorted::%{_num}%}%""}}" to {_pg::%loop-num-1%::*}
+		set {_page::%loop-num%} to "'[{""text"":""%{_p}%\'s Punishments\\n""},%{_pg::%loop-num%::*}%]'"
+		replace every ", " and " and " in {_page::%loop-num%} with ","
+		add {_page::%loop-num%} to {_pages::*}
+	set {_pages} to "[%{_pages::*}%]"
+	replace every ", " and " and " in {_pages} with ","
+	set {_book} to written book with nbt "{pages:%{_pages}%,title:Punishments,author:Ballistix,display:{Lore:[""%{_p}%'s Punishments""]}}"
+	open book {_book} to {_s}
+
+
+
+# # #  VIEW PUNISHMENT  # # #
+
+command /viewpun <text>:
+	permission: skpuns.viewpun
+	permission message: {@noperm}
+	usage: Usage: /viewpun <ID>
+	trigger:
+		viewPun(player, arg-1)
+
+function viewPun(s: player, c: text):
+	if {punishments::allpuns::*} contains {_c}:
+		set {_t} to {punishment::%{_c}%::type}
+		set {_p} to {punishment::%{_c}%::player} parsed as offline player
+		set {_i} to {punishment::%{_c}%::issuer} parsed as offline player
+		set {_i} to "CONSOLE" if "%{_i}%" is "<none>"
+		set {_r} to {punishment::%{_c}%::reason}
+		if {punishment::%{_c}%::timespan} is not "Forever":
+			set {_d} to "%{punishment::%{_c}%::timespan}%" parsed as timespan
+		else:
+			set {_d} to "Forever"
+		set {_sl} to {punishment::%{_c}%::silent}
+		set {_ts} to {punishment::%{_c}%::timestamp}
+		if {_t} is "warn" or "kick" or "unmute" or "unban" or "unipban":
+			set {_d} to "N/A"
+		if {_t} is "Ipban":
+			set {_t} to "IP-Ban"
+		if {_t} is "Unmute":
+			set {_t} to "(R) Mute"
+		if {_t} is "Unban":
+			set {_t} to "(R) Ban"
+		if {_t} is "Unipban":
+			set {_t} to "(R) IP-Ban"
+		if "%{_d}%" is "0 seconds":
+			set {_d} to "Forever"
+		if {_t} does not contain "IP":
+			if {_d} is "Forever":
+				set {_appeal} to "&aTrue"
+			else if {_d} >= 24 hours:
+				set {_appeal} to "&aTrue"
+			else:
+				set {_appeal} to "&cFalse"
+		else:
+			if {_r} contains "evasion":
+				set {_appeal} to "&cFalse"
+			else:
+				set {_appeal} to "&aTrue"
+		if {_t} contains "(R)":
+			set {_appeal} to "&cFalse"
+		set {_book} to written book with nbt "{pages:['[{""text"":""%{_p}%\'s %{_t}%\\n\\n\\u00A72Reason:\\n\\u00A78 - \\u00A76%{_r}%\\n\\n\\u00A72Duration:\\n\\u00A78 - \\u00A7c%{_d}%\\n\\n\\u00A72Silent:\\n\\u00A78 - %{_sl}%\\n\\n""},{""text"":""\\u00A74[BACK]"",""clickEvent"":{""action"":""run_command"",""value"":""/puns %{_p}%""}}]','[{""text"":""\\u00A72Issued:\\n\\u00A78 - \\u00A78\\u00A7o%{_ts}%\\n\\n\\u00A72Appealable:\\n\\u00A78 - %{_appeal}%\\n\\n\\u00A72Issuer:\\n\\u00A78 - \\u00A73%{_i}%\\n\\n""},{""text"":""\\u00A74Remove Punishment"",""clickEvent"":{""action"":""run_command"",""value"":""/removepun %{_p}% %{_c}%""}}]'],title:Punishments,author:Ballistix,display:{Lore:[""%{_p}%'s Punishments""]}}"
+		open book {_book} to {_s}
+	else:
+		send "{@p} &cError finding this punishment" to {_s}
+
+
+
+# # #  CLEAR PUNS  # # #
+
+command /ch <offline player>:
+	permission: skpuns.clearhistory
+	permission message: {@noperm}
+	usage: /clearhistory <player>
+	aliases: clearhistory
+	trigger:
+		clear {punishments::%uuid of arg-1%::received::*}
+		message "{@p} &aSuccessfully cleared %arg-1%&a's punishments"
+
+command /csh <offline player>:
+	permission: skpuns.clearstaffhistory
+	permission message: {@noperm}
+	usage: /clearstaffhistory <player>
+	aliases: clearstaffhistory
+	trigger:
+		clear {punishments::%uuid of arg-1%::issued::*}
+		message "{@p} &aSuccessfully cleared %arg-1%&a's issued punishments"
+
+command /removepun <offline player> <text>:
+	permission: skpuns.removepun
+	permission message: {@noperm}
+	usage: Usage: /removepun <player> <code>
+	trigger:
+		removePun(player, arg-1, arg-2)
+		if size of {punishments::%uuid of arg-1%::received::*} > 0:
+			history(player, arg-1)
+
+function removePun(s: player, p: offline player, c: text):
+	set {_u} to uuid of {_p}
+	set {_ui} to {punishment::%{_c}%::issuer}
+	remove {_c} from {punishments::%{_u}%::received::*}
+	remove {_c} from {punishments::%{_ui}%::issued::*}
+	remove {_c} from {punishments::allpuns::*}
+	send "{@p} &aSuccessfully removed this punishment" to {_s}
+
+
+
+# # #  ADD/REMOVE PRESETS  # # #
+
+command /punpreset <text> <text> <text> [<integer>] [<text>]:
+	permission: rank.admin
+	permission message: {@noperm}
+	usage: Usage: /punpreset <add|remove> <type> <reason> [number] [s|m|h|d|w|mo|y|forever]
+	trigger:
+		if arg-1 is "add":
+			set {_r} to arg-3
+			replace every "_" in {_r} with " "
+			if arg-2 is "kick" or "warn" or "ipban":
+				addPunPreset(sender, arg-2, {_r}, 0, "Forever")
+				stop
+			else if arg-4 is set:
+				if arg-5 is set:
+					if arg-5 is "forever" or "permanent":
+						set {_tst} to "Forever"
+						set {_tsn} to 0
+					else:
+						set {_tst} to lowercase(arg-5)
+						set {_tsn} to arg-4
+					addPunPreset(sender, arg-2, {_r}, {_tsn}, {_tst})
+				else:
+					message "Usage: /punpreset add <type> <reason> <number> <s|m|h|d|w|mo|y|forever>%nl%Tip: Use underscores (_) in the reason instead of spaces"
+			else:
+				message "Usage: /punpreset add <type> <reason> <number> <s|m|h|d|w|mo|y|forever>%nl%Tip: Use underscores (_) in the reason instead of spaces"
+		else if arg-1 is "remove":
+			set {_r} to arg-3
+			replace every " " in {_r} with ""
+			replace every "_" in {_r} with " "
+			removePunPreset(sender, arg-2, {_r})
+		else:
+			message "{@p} &cUnknown argument"
+
+function addPunPreset(s: sender, t: text, r: text, tsn: integer, tst: text):
+	set {_t} to lowercase({_t})
+	if {_t} is not "kick" or "warn" or "mute" or "ban" or "ipban":
+		send "{@p} &cUnknown punishment type" to {_s}
+		stop
+	if {punpresets::%{_t}%::*} contains {_r}:
+		send "{@p} &cThis preset has already been added" to {_s}
+		stop
+	add {_r} to {punpresets::%{_t}%::*}
+	set {punpreset::%{_t}%::%{_r}%::reason} to {_r}
+	set {punpreset::%{_t}%::%{_r}%::timenum} to {_tsn}
+	set {punpreset::%{_t}%::%{_r}%::timetext} to {_tst}
+	send "{@p} &aAdded &b%{_r}% &ato the &b%{_t}% &apreset list" to {_s}
+
+function removePunPreset(s: sender, t: text, r: text):
+	set {_t} to lowercase({_t})
+	if {_t} is not "kick" or "warn" or "mute" or "ban" or "ipban":
+		send "{@p} &cUnknown punishment type" to {_s}
+		stop
+	if {punpresets::%{_t}%::*} does not contain {_r}:
+		send "{@p} &cThis preset has not been added" to {_s}
+		stop
+	remove {_r} from {punpresets::%{_t}%::*}
+	clear {punpreset::%{_t}%::%{_r}%::*}
+	send "{@p} &aRemoved &b%{_r}% &afrom the &b%{_t}% &apreset list" to {_s}
