@@ -8,6 +8,7 @@ options:
 
 
 # # #  BAN/IP-BAN  # # #
+
 on join:
 	if player has permission "*":
 		stop
@@ -93,108 +94,3 @@ on chat:
 					message "{@pp} &7You are temporarily muted! Reason&8: &6%{punish::%uuid of player%::mute::reason}%&7. Issued by&8: &b%{punish::%uuid of player%::mute::issuer}%&7. Remaining duration&8: &c%{_diff}%&7"
 				send "{@pp} &c%player% &7tried to talk but is currently muted!" to all players where [input has permission "skpuns.notify"]
 				stop
-
-
-
-# # #  PANES  # # #
-
-function formatPanes(p: player, l: text, s: integer, c1: item, c2: item):
-	set {_fill} to {_s} * 9
-	remove 1 from {_fill}
-	format gui slot integers between 0 and {_fill} of {_p} with {_c2} named "&7" to do nothing
-	if {_l} is "line":
-		format gui slot integers between 0 and 8 of {_p} with {_c1} named "&7" to do nothing
-		set {_bot} to {_fill} - 8
-		format gui slot integers between {_bot} and {_fill} of {_p} with {_c1} named "&7" to do nothing
-	if {_l} is "round":
-		format gui slot integers between 0 and 8 of {_p} with {_c1} named "&7" to do nothing
-		set {_bot} to {_fill} - 8
-		format gui slot integers between {_bot} and {_fill} of {_p} with {_c1} named "&7" to do nothing
-		set {_left} to 0
-		set {_right} to 8
-		loop {_s} - 2 times:
-			add 9 to {_left}
-			add 9 to {_right}
-			format gui slot {_left} of {_p} with {_c1} named "&7" to do nothing
-			format gui slot {_right} of {_p} with {_c1} named "&7" to do nothing
-
-
-
-# # #  LETTERS  # # #
-
-on script load:
-	set {_letter-pairs::*} to split "Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz" at " "
-	loop {_letter-pairs::*}:
-		set {_pair::*} to loop-value split at ""
-		set {_uppercase} to {_pair::1}
-		set {_lowercase} to {_pair::2}
-		set {letters::uppercase::%{_lowercase}%} to {_uppercase}
-		set {letters::lowercase::%{_uppercase}%} to {_lowercase}
-on script unload:
-	delete {letters::*}
-function switchCaseFor(text: text, to-uppercase: boolean) :: text:
-	set {_characters::*} to {_text} split at ""
-	set {_new} to ""
-	loop {_characters::*}:
-		set {_char} to loop-value
-		if {_to-uppercase} is true:
-			set {_char} to {letters::uppercase::%loop-value%}
-		else:
-			set {_char} to {letters::lowercase::%loop-value%}
-		set {_new} to "%{_new}%%{_char}%"
-	return {_new}
-function uppercase(text: text) :: text:
-	return switchCaseFor({_text}, true)
-function lowercase(text: text) :: text:
-	return switchCaseFor({_text}, false)
-function capitalize(text: text) :: text:
-	replace every ", " in {_text} with "_comma179_"
-	replace every " and " in {_text} with "_and179_"
-	set {_chars::*} to {_text} split at ""
-	loop size of {_chars::*} times:
-		set {_l} to {_chars::%loop-num%}
-		if {_l} is not "_comma179_" or "_and179_":
-			if loop-num is 1:
-				add uppercase({_l}) to {_new::*}
-			else:
-				add {_l} to {_new::*}
-		else:
-			add {_l} to {_new::*}
-	set {_out} to "%{_new::*}%"
-	replace every ", " and " and " in {_out} with ""
-	replace every "_comma179_" in {_out} with ", "
-	replace every "_and179_" in {_out} with " and "
-	return {_out}
-
-
-
-# # #  CODE  # # #
-
-function returnCode() :: string:
-	set {_letters::*} to "A" and "B" and "C" and "D" and "E" and "F" and "G" and "H" and "I" and "J" and "K" and "L" and "M" and "N" and "O" and "P" and "Q" and "R" and "S" and "T" and "U" and "V" and "W" and "X" and "Y" and "Z"
-	set {_numbers::*} to "0" and "1" and "2" and "3" and "4" and "5" and "6" and "7" and "8" and "9"
-	chance of 50%:
-		set {_1} to random element out of {_letters::*}
-	else:
-		set {_1} to random element out of {_numbers::*}
-	chance of 50%:
-		set {_2} to random element out of {_letters::*}
-	else:
-		set {_2} to random element out of {_numbers::*}
-	chance of 50%:
-		set {_3} to random element out of {_letters::*}
-	else:
-		set {_3} to random element out of {_numbers::*}
-	chance of 50%:
-		set {_4} to random element out of {_letters::*}
-	else:
-		set {_4} to random element out of {_numbers::*}
-	chance of 50%:
-		set {_5} to random element out of {_letters::*}
-	else:
-		set {_5} to random element out of {_numbers::*}
-	chance of 50%:
-		set {_6} to random element out of {_letters::*}
-	else:
-		set {_6} to random element out of {_numbers::*}
-	return "%{_1}%%{_2}%%{_3}%%{_4}%%{_5}%%{_6}%"
