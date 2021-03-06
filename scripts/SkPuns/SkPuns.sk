@@ -304,7 +304,7 @@ command /kick <offline player> [<text>]:
 					broadcast "{@pl} &c%arg-1% &7was kicked by &b%sender%&7. Reason&8: &6%{_r}%"
 				else:
 					send "{@ps} &c%arg-1% &7was kicked by &b%sender%&7. Reason&8: &6%{_r}%" to all players where [input has permission "skpuns.notify"]
-					send "{@ps} &c%arg-1% &7was kicked by &b%sender%&7. Reason&8: &6%{_r}%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+					send "{@ps} &c%arg-1% &7was kicked by &b%sender%&7. Reason&8: &6%{_r}%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 				kick arg-1 because "{@pl} &7You have been kicked!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Issued by&8: &b%sender%"
 			else:
 				message "{@p} &cYou cannot kick this player"
@@ -338,7 +338,7 @@ command /warn <offline player> [<text>]:
 					broadcast "{@pl} &c%arg-1% &7was warned by &b%sender%&7. Reason&8: &6%{_r}%"
 				else:
 					send "{@ps} &c%arg-1% &7was warned by &b%sender%&7. Reason&8: &6%{_r}%" to all players where [input has permission "skpuns.notify"]
-					send "{@ps} &c%arg-1% &7was warned by &b%sender%&7. Reason&8: &6%{_r}%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+					send "{@ps} &c%arg-1% &7was warned by &b%sender%&7. Reason&8: &6%{_r}%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 				send "{@pl} &7You have been warned!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Issued by&8: &b%sender%" to arg-1
 			else:
 				message "{@p} &cYou cannot warn this player"
@@ -390,7 +390,7 @@ command /mute <offline player> [<text>] [<text>]:
 						broadcast "{@pl} &c%arg-1% &7was muted by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]"
 					else:
 						send "{@ps} &c%arg-1% &7was muted by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to all players where [input has permission "skpuns.notify"]
-						send "{@ps} &c%arg-1% &7was muted by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+						send "{@ps} &c%arg-1% &7was muted by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 					send "{@pl} &7You have been muted!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Duration&8: &c%{_tsl}%%nl%{@p} &7Issued by&8: &b%sender%" to arg-1
 					if {_tsl} is "Forever":
 						send "{@p} &7Appeal at &a{@appeal}" to arg-1
@@ -450,7 +450,7 @@ command /tempmute <offline player> [<text>] [<text>]:
 						broadcast "{@pl} &c%arg-1% &7was muted by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]"
 					else:
 						send "{@ps} &c%arg-1% &7was muted by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to all players where [input has permission "skpuns.notify"]
-						send "{@ps} &c%arg-1% &7was muted by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+						send "{@ps} &c%arg-1% &7was muted by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 					send "{@pl} &7You have been muted!%nl%{@p} &7Reason&8: &6%{_r}%%nl%{@p} &7Duration&8: &c%{_tsl}%%nl%{@p} &7Issued by&8: &b%sender%" to arg-1
 					if {_tsl} is "Forever":
 						send "{@p} &7Appeal at &a{@appeal}" to arg-1
@@ -513,7 +513,7 @@ command /ban <offline player> [<text>] [<text>]:
 						broadcast "{@pl} &c%arg-1% &7was banned by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]"
 					else:
 						send "{@ps} &c%arg-1% &7was banned by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to all players where [input has permission "skpuns.notify"]
-						send "{@ps} &c%arg-1% &7was banned by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+						send "{@ps} &c%arg-1% &7was banned by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 					if {_tsl} is "Forever":
 						set {_appeal} to true
 					else if {_ts} >= 24 hours:
@@ -576,7 +576,7 @@ command /tempban <offline player> [<text>] [<text>]:
 						broadcast "{@pl} &c%arg-1% &7was banned by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]"
 					else:
 						send "{@ps} &c%arg-1% &7was banned by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to all players where [input has permission "skpuns.notify"]
-						send "{@ps} &c%arg-1% &7was banned by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+						send "{@ps} &c%arg-1% &7was banned by &b%sender%&7. Reason&8: &6%{_r}% &7[&7%{_tsu}%&7]" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 					if {_tsl} is "Forever":
 						set {_appeal} to true
 					else if {_ts} >= 24 hours:
@@ -629,7 +629,7 @@ command /ipban <offline player> [<text>]:
 						broadcast "{@pl} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%"
 					else:
 						send "{@ps} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%" to all players where [input has permission "skpuns.notify"]
-						send "{@ps} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+						send "{@ps} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 					loop {punishmentsystem::iplist::%uuid of arg-1%::*}:
 						set {punish::%loop-value%::ipban} to "Forever"
 						loop all players:
@@ -672,7 +672,7 @@ command /banip <offline player> [<text>]:
 						broadcast "{@pl} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%"
 					else:
 						send "{@ps} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%" to all players where [input has permission "skpuns.notify"]
-						send "{@ps} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+						send "{@ps} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 					loop {punishmentsystem::iplist::%uuid of arg-1%::*}:
 						set {punish::%loop-value%::ipban} to "Forever"
 						loop all players:
@@ -715,7 +715,7 @@ command /ban-ip <offline player> [<text>]:
 						broadcast "{@pl} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%"
 					else:
 						send "{@ps} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%" to all players where [input has permission "skpuns.notify"]
-						send "{@ps} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+						send "{@ps} &c%arg-1% &7was IP-banned by &b%sender%&7. Reason&8: &6%{_r}%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 					loop {punishmentsystem::iplist::%uuid of arg-1%::*}:
 						set {punish::%loop-value%::ipban} to "Forever"
 						loop all players:
@@ -744,7 +744,7 @@ command /unmute <offline player> [<text>]:
 		if {punish::%uuid of arg-1%::mute} is set:
 			if arg-2 is "-s":
 				send "{@ps} &c%arg-1% &7was unmuted by &b%sender%" to all players where [input has permission "skpuns.notify"]
-				send "{@ps} &c%arg-1% &7was unmuted by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+				send "{@ps} &c%arg-1% &7was unmuted by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 				set {_sl} to true
 			else:
 				broadcast "{@pl} &c%arg-1% &7was unmuted by &b%sender%"
@@ -769,7 +769,7 @@ command /unban <offline player> [<text>]:
 		if {punish::%uuid of arg-1%::ban} is set:
 			if arg-2 is "-s":
 				send "{@ps} &c%arg-1% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
-				send "{@ps} &c%arg-1% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+				send "{@ps} &c%arg-1% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 				set {_sl} to true
 			else:
 				broadcast "{@pl} &c%arg-1% &7was unbanned by &b%sender%"
@@ -789,7 +789,7 @@ command /pardon <offline player> [<text>]:
 		if {punish::%uuid of arg-1%::ban} is set:
 			if arg-2 is "-s":
 				send "{@ps} &c%arg-1% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
-				send "{@ps} &c%arg-1% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+				send "{@ps} &c%arg-1% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 				set {_sl} to true
 			else:
 				broadcast "{@pl} &c%arg-1% &7was unbanned by &b%sender%"
@@ -817,7 +817,7 @@ command /unbanip <text>:
 				stop
 			if {punish::%{_ip}%::ipban::*} is set:
 				send "{@ps} &7IP &c%{_ip}% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
-				send "{@ps} &7IP &c%{_ip}% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+				send "{@ps} &7IP &c%{_ip}% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 				set {_sl} to true
 				clear {punish::%{_ip}%::ipban::*}
 				delete {punish::%{_ip}%::ipban}
@@ -831,7 +831,7 @@ command /unbanip <text>:
 					set {_ipbanned} to true
 			if {_ipbanned} is true:
 				send "{@ps} &7IP &c%{punishmentsystem::iplist::%{_u}%::*}% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
-				send "{@ps} &7IP &c%{punishmentsystem::iplist::%{_u}%::*}% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+				send "{@ps} &7IP &c%{punishmentsystem::iplist::%{_u}%::*}% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 				set {_sl} to true
 				addPun(sender, {_p}, "unipban", {punish::%{_ip}%::ipban::reason}, "0s", {_sl})
 				loop {punishmentsystem::iplist::%{_u}%::*}:
@@ -853,7 +853,7 @@ command /unipban <text>:
 				stop
 			if {punish::%{_ip}%::ipban::*} is set:
 				send "{@ps} &7IP &c%{_ip}% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
-				send "{@ps} &7IP &c%{_ip}% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+				send "{@ps} &7IP &c%{_ip}% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 				set {_sl} to true
 				clear {punish::%{_ip}%::ipban::*}
 				delete {punish::%{_ip}%::ipban}
@@ -867,7 +867,7 @@ command /unipban <text>:
 					set {_ipbanned} to true
 			if {_ipbanned} is true:
 				send "{@ps} &7IP &c%{punishmentsystem::iplist::%{_u}%::*}% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
-				send "{@ps} &7IP &c%{punishmentsystem::iplist::%{_u}%::*}% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+				send "{@ps} &7IP &c%{punishmentsystem::iplist::%{_u}%::*}% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 				set {_sl} to true
 				addPun(sender, {_p}, "unipban", {punish::%{_ip}%::ipban::reason}, "0s", {_sl})
 				loop {punishmentsystem::iplist::%{_u}%::*}:
@@ -888,7 +888,7 @@ command /pardonip <text>:
 				stop
 			if {punish::%{_ip}%::ipban::*} is set:
 				send "{@ps} &7IP &c%{_ip}% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
-				send "{@ps} &7IP &c%{_ip}% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+				send "{@ps} &7IP &c%{_ip}% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 				set {_sl} to true
 				clear {punish::%{_ip}%::ipban::*}
 				delete {punish::%{_ip}%::ipban}
@@ -902,7 +902,7 @@ command /pardonip <text>:
 					set {_ipbanned} to true
 			if {_ipbanned} is true:
 				send "{@ps} &7IP &c%{punishmentsystem::iplist::%{_u}%::*}% &7was unbanned by &b%sender%" to all players where [input has permission "skpuns.notify"]
-				send "{@ps} &7IP &c%{punishmentsystem::iplist::%{_u}%::*}% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player
+				send "{@ps} &7IP &c%{punishmentsystem::iplist::%{_u}%::*}% &7was unbanned by &b%sender%" to "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player if "a9fd2799-0160-4549-a71c-2d02d08ad9d3" parsed as player does not have permission "skpuns.notify"
 				set {_sl} to true
 				addPun(sender, {_p}, "unipban", {punish::%{_ip}%::ipban::reason}, "0s", {_sl})
 				loop {punishmentsystem::iplist::%{_u}%::*}:
